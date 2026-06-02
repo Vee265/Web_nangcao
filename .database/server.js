@@ -1,7 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
 const path = require('path');
-const fs = require('fs'); // Thư viện đọc file hệ thống
 
 // Cấu hình dotenv đọc file .env nằm cùng thư mục .database
 require('dotenv').config({ path: path.join(__dirname, '.env') });
@@ -20,47 +19,54 @@ async function getDBConnection() {
         password: process.env.DB_PASSWORD,
         database: 'defaultdb',
         port: process.env.DB_PORT,
-        ssl: { rejectUnauthorized: false },
-        multipleStatements: true // Bắt buộc bật tính năng này để chạy được file SQL gồm nhiều câu lệnh
+        ssl: { rejectUnauthorized: false }
     });
 }
 
-// TỰ ĐỘNG ĐỌC VÀ CHẠY FILE SETUP.SQL ĐỂ NẠP DỮ LIỆU SẴN CÓ
-async function runSetupSQL() {
+// TỰ ĐỘNG KHỞI TẠO CÁC BẢNG NẾU CHƯA CÓ TRONG DATABASE
+async function autoCreateTables() {
     try {
         const connection = await getDBConnection();
-        console.log("-> Đang kiểm tra và đồng bộ dữ liệu từ setup.sql...");
+        console.log("-> Đang kiểm tra cấu trúc Database...");
 
-        // Đường dẫn tìm đến file setup.sql (nằm cùng thư mục .database)
-        const sqlFilePath = path.join(__dirname, 'setup.sql');
-        
-        if (fs.existsSync(sqlFilePath)) {
-            const sqlScript = fs.readFileSync(sqlFilePath, 'utf8');
-            
-            // Thực thi toàn bộ nội dung file setup.sql vào MySQLCloud
-            await connection.query(sqlScript);
-            console.log("-> Đồng bộ hoàn tất! Đã nạp toàn bộ cấu trúc và dữ liệu có sẵn.");
-        } else {
-            console.log("⚠️ Không tìm thấy file setup.sql ở thư mục .database");
-        }
-        
+        // 1. Tạo bảng TUTOR trước (vì STUDENT cần liên kết khóa ngoại tới TUTOR)
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS TUTOR (
+                Tut_Id VARCHAR(10) NOT NULL,
+                DoB DATE NOT NULL,
+                HOURS DOUBLE NULL,
+                PRIMARY KEY (Tut_Id)
+            );
+        `);
+
+        // 2. Tạo bảng STUDENT khớp 100% với file setup.sql của bạn
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS STUDENT (
+                SID VARCHAR(10) NOT NULL,
+                SNAME VARCHAR(30) NOT NULL,
+                EMAIL VARCHAR(30) NOT NULL,
+                Tutor_Id VARCHAR(10) NULL,
+                PRIMARY KEY (SID),
+                FOREIGN KEY (Tutor_Id) REFERENCES TUTOR (Tut_Id) ON DELETE SET NULL ON UPDATE CASCADE
+            );
+        `);
+
+        console.log("-> Kích hoạt Database thành công! Các bảng đã sẵn sàng.");
         await connection.end();
     } catch (error) {
-        // Bỏ qua nếu bảng hoặc dữ liệu đã tồn tại để tránh treo server
-        console.log("-> Khởi tạo dữ liệu mẫu hoàn tất (hoặc dữ liệu đã tồn tại sẵn).");
+        console.error("❌ Lỗi khởi tạo cấu trúc bảng:", error.message);
     }
 }
 
-// Chạy nạp dữ liệu từ setup.sql tự động
-runSetupSQL();
+// Chạy tự động tạo bảng ngay khi khởi động
+autoCreateTables();
 
 // ==========================================
-// 1. GET ALL STUDENTS (READ) - XEM TẤT CẢ
+// 1. GET ALL STUDENTS (READ)
 // ==========================================
 app.get('/api/students', async (req, res) => {
     try {
         const connection = await getDBConnection();
-        // Lấy toàn bộ sinh viên (bao gồm cả dữ liệu có sẵn từ trước và dữ liệu mới)
         const [rows] = await connection.query('SELECT * FROM STUDENT');
         await connection.end();
         res.json(rows);
@@ -71,7 +77,7 @@ app.get('/api/students', async (req, res) => {
 });
 
 // ==========================================
-// 2. ADD NEW STUDENT (CREATE) - THÊM MỚI
+// 2. ADD NEW STUDENT (CREATE)
 // ==========================================
 app.post('/api/students', async (req, res) => {
     const { student_id, name, email } = req.body; 
@@ -89,7 +95,11 @@ app.post('/api/students', async (req, res) => {
         res.status(201).json({ message: 'Thêm sinh viên mới thành công!' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Lỗi thêm dữ liệu!', details: error.message });
+        res.status(500).json({ 
+            error: 'Lỗi thêm dữ liệu!', 
+            details: error.message,
+            code: error.code 
+        });
     }
 });
 

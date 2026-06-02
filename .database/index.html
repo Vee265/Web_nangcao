@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Sinh viên - Web Nâng Cao</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f7f6; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <h1>Danh Sách Sinh Viên (Dữ liệu từ Aiven Cloud)</h1>
+    
+    <table id="studentTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên Sinh Viên</th>
+                <th>Email</th>
+                </tr>
+        </thead>
+        <tbody>
+            </tbody>
+    </table>
+
+    <script>
+        // Hàm dùng Fetch API để gọi lên Backend lấy dữ liệu
+        async function loadStudents() {
+            try {
+                const response = await fetch('/api/students');
+                const students = await response.json();
+                
+                const tbody = document.querySelector('#studentTable tbody');
+                tbody.innerHTML = ''; // Xóa dữ liệu cũ (nếu có)
+
+                students.forEach(student => {
+                    const row = `<tr>
+                        <td>${student.id || student.ID || ''}</td>
+                        <td>${student.name || student.NAME || student.fullname || ''}</td>
+                        <td>${student.email || student.EMAIL || ''}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu sinh viên:', error);
+            }
+        }
+
+        // Chạy hàm tải dữ liệu ngay khi trang web được nạp xong
+        window.onload = loadStudents;
+    </script>
+</body>
+</html>
