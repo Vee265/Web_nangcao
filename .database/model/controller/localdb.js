@@ -4,15 +4,15 @@ const path = require('path');
 require('dotenv').config();
 
 async function importSQL() {
-  // 1. Kết nối ban đầu tới defaultdb của Aiven để tạo cơ sở dữ liệu mới
+ 
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: 'defaultdb', // Kết nối vào DB mặc định trước
+    database: 'defaultdb', 
     port: process.env.DB_PORT,
     ssl: { rejectUnauthorized: false },
-    multipleStatements: true // Bắt buộc bật tính năng này để chạy nhiều lệnh SQL một lúc
+    multipleStatements: true 
   });
 
   try {

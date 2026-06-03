@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require('express');
 const port = 9000;
 const app = express();
@@ -29,3 +30,16 @@ app.post('/api/post', (req, res) => {
         message: 'This is a POST request!'
     });
 });
+=======
+const express = require ('express')
+const port = 9000
+const app = express();
+            (alisa)express() : express
+            import express
+app.listen(port , () =>{
+    const test = port;
+    console.log("port is listening", test);
+    
+
+}
+>>>>>>> 8f29b3633a81fe663115437d38b88041640d0663

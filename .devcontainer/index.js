@@ -8,10 +8,10 @@ app.listen(port, () => {
 });
 
 app.get('/', (req, res) => {
-    res.json({ message: 'Toi yeu em qua di thoi!' });
+    res.json({ message: 'Toi ' });
 });
 
 app.post('/api/post', (req, res) => { res.json({
-message: 'Tôi yeu em nhat nhá!' });
+message: 'Tôi ' });
 });
 

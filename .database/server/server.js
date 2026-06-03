@@ -2,7 +2,6 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const path = require('path');
 
-// Cấu hình dotenv đọc file .env nằm cùng thư mục .database
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
@@ -11,7 +10,7 @@ const PORT = 3000;
 app.use(express.static(__dirname));
 app.use(express.json());
 
-// Hàm kết nối CSDL chung
+
 async function getDBConnection() {
     return await mysql.createConnection({
         host: process.env.DB_HOST,
@@ -23,13 +22,12 @@ async function getDBConnection() {
     });
 }
 
-// TỰ ĐỘNG KHỞI TẠO CÁC BẢNG NẾU CHƯA CÓ TRONG DATABASE
+
 async function autoCreateTables() {
     try {
         const connection = await getDBConnection();
         console.log("-> Đang kiểm tra cấu trúc Database...");
 
-        // 1. Tạo bảng TUTOR trước (vì STUDENT cần liên kết khóa ngoại tới TUTOR)
         await connection.query(`
             CREATE TABLE IF NOT EXISTS TUTOR (
                 Tut_Id VARCHAR(10) NOT NULL,
@@ -39,7 +37,7 @@ async function autoCreateTables() {
             );
         `);
 
-        // 2. Tạo bảng STUDENT khớp 100% với file setup.sql của bạn
+        
         await connection.query(`
             CREATE TABLE IF NOT EXISTS STUDENT (
                 SID VARCHAR(10) NOT NULL,
@@ -58,12 +56,10 @@ async function autoCreateTables() {
     }
 }
 
-// Chạy tự động tạo bảng ngay khi khởi động
+
 autoCreateTables();
 
-// ==========================================
-// 1. GET ALL STUDENTS (READ)
-// ==========================================
+
 app.get('/api/students', async (req, res) => {
     try {
         const connection = await getDBConnection();
@@ -76,9 +72,7 @@ app.get('/api/students', async (req, res) => {
     }
 });
 
-// ==========================================
-// 2. ADD NEW STUDENT (CREATE)
-// ==========================================
+
 app.post('/api/students', async (req, res) => {
     const { student_id, name, email } = req.body; 
 
@@ -104,5 +98,5 @@ app.post('/api/students', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server đang chạy ổn định tại port ${PORT}`);
+    console.log(`Server đang chạy ổn định tại port ${PORT}`);S
 });
