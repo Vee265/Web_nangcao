@@ -14,4 +14,21 @@ CREATE TABLE subjects (
   FOREIGN KEY (user_id) REFERENCES users(student_code) ON DELETE CASCADE
 
 );
+SELECT id, name, color, icon, user_id, created_at, updated_at 
+FROM subjects 
+WHERE user_id = 'USER_ID_CAN_TIM';
+SELECT id, name, color, icon, user_id, created_at, updated_at 
+FROM subjects 
+WHERE id = 123;
 
+UPDATE subjects 
+SET name = 'Tên môn học mới', 
+    color = '#2ecc71', 
+    icon = 'laptop' 
+WHERE id = 123;
+
+
+DELETE FROM subjects 
+WHERE id = 123;
+DELETE FROM subjects 
+WHERE user_id = 'USER_ID_CAN_XOA';
