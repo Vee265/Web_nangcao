@@ -1,0 +1,17 @@
+
+
+CREATE TABLE subjects (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  color VARCHAR(7) DEFAULT '#3498db',
+  icon VARCHAR(50) DEFAULT 'book', 
+  user_id VARCHAR(50) NOT NULL, 
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  
+  UNIQUE KEY uq_user_subject (name, user_id),
+  
+  FOREIGN KEY (user_id) REFERENCES users(student_code) ON DELETE CASCADE
+
+);
+

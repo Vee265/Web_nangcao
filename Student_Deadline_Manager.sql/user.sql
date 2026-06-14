@@ -1,0 +1,15 @@
+-- 1 Khởi tạo bảng
+CREATE DATABASE IF NOT EXISTS Student_Deadline_Manager;
+USE Student_Deadline_Manager;
+
+-- Bảng 1: User (Người dùng / Sinh viên)
+CREATE TABLE users (
+id INT AUTO_INCREMENT PRIMARY KEY,
+student_code VARCHAR(50) NOT NULL UNIQUE, -- MSSV
+full_name VARCHAR(150) NOT NULL,
+email VARCHAR(150) NOT NULL UNIQUE,
+password VARCHAR(255) NOT NULL,
+avatar_url VARCHAR(255) NULL,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
